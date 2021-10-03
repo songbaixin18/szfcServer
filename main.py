@@ -6,11 +6,12 @@ import time
 import urllib
 import urllib.request
 import urllib.parse
+import pymysql
 
 from fastapi import FastAPI, Body, Header
+from sshtunnel import SSHTunnelForwarder
 
 app = FastAPI()
-
 
 # 伪装用Header
 my_headers = [
@@ -28,6 +29,14 @@ my_headers = [
     "Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.7 (KHTML, like Gecko) Ubuntu/11.04 Chromium/16.0.912.77 Chrome/16.0.912.77 Safari/535.7",
     "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:10.0) Gecko/20100101 Firefox/10.0 "
 ]
+
+# def connectMysql():
+#     # 打开数据库连接
+#     db = pymysql.connect(host="localhost", user="root",
+#                          password="5400018sss", database="szfc")
+#     # 使用 cursor() 方法创建一个游标对象 cursor
+#     return db.cursor()
+
 
 # 搜索批次信息
 
@@ -72,7 +81,6 @@ def searchPc(
             "ctl00$MainContent$txt_Com": organization,
             "ctl00$MainContent$bt_select": "查询"
         }).encode('utf-8')
-        print(1)
         # 批次信息
         pcResp = urllib.request.urlopen(req).read().decode('utf-8')
         pcCode = re.findall(r'(SPJ_ID=[a-z0-9-]+)', pcResp, re.I | re.M)
@@ -81,14 +89,12 @@ def searchPc(
         pcOrganization = re.findall(
             r'(false;\">[\u4e00-\u9fa50-9（）]+<)', pcResp, re.I | re.M)
         pcInfo = []
-        print(pcCode)
         for index, pc in enumerate(pcCode):
             pcInfo.append({
                 "name": pcName[index].replace("</a></td><td", "").replace(">", ""),
                 "organization": pcOrganization[index].replace("false;\">", "").replace("<", ""),
                 "code": pc.replace("SPJ_ID=", "")
             })
-        print(3)
         return {
             "message": "",
             "code": 0,
@@ -160,6 +166,82 @@ def searchFw(PBTAB_ID: Optional[str] = None, code: Optional[str] = None):
             "code": 0,
             "data": re.search(r'(<table cellspacing[\w\W]+\r\n\t</table>)', respInfo, re.I).group()
         }
+    except Exception as err:
+        print(err)
+        return {
+            "message": "服务器错误",
+            "code": -1
+        }
+
+
+@app.get("/apicc/getLouData")
+def getLouData(code: Optional[str] = None, date: Optional[str] = None):
+    try:
+        with SSHTunnelForwarder(
+                ("47.92.100.56", 22),
+                ssh_username="root",
+                ssh_password="songbaixinA1",
+                remote_bind_address=('127.0.0.1', 3306)
+        ) as tunnel:
+            db = pymysql.connect(host='127.0.0.1', port=tunnel.local_bind_port,
+                                 user='root', password='5400018ss', database="szfc")
+            cursor = db.cursor()
+            # SQL 查询语句
+            sql = "SELECT * FROM fw WHERE code = '%s' and date = '%s'" % (
+                code, date)
+            try:
+                # 执行SQL语句
+                cursor.execute(sql)
+                # 获取记录列表
+                result = cursor.fetchone()
+                code = result[1]
+                data = result[2]
+                date = result[3]
+                return {
+                    "message": "",
+                    "code": 0,
+                    "data": data
+                }
+            except Exception as err:
+                print("err: %s" % err)
+    except Exception as err:
+        print("err: %s" % err)
+        return {
+            "message": "服务器错误",
+            "code": -1
+        }
+
+
+@app.post("/apicc/saveLouData")
+def saveLouData(
+        code: Optional[str] = Body("", embed=True),
+        date: Optional[str] = Body("", embed=True),
+        data: Optional[str] = Body("", embed=True)):
+    try:
+        with SSHTunnelForwarder(
+                ("47.92.100.56", 22),
+                ssh_username="root",
+                ssh_password="songbaixinA1",
+                remote_bind_address=('127.0.0.1', 3306)
+        ) as tunnel:
+            db = pymysql.connect(host='127.0.0.1', port=tunnel.local_bind_port,
+                                 user='root', password='5400018ss', database="szfc")
+            cursor = db.cursor()
+            sql = "INSERT INTO fw(code, data, date) VALUES ('%s', '%s', '%s')" % (
+                code, data, date)
+            try:
+                # 执行sql语句
+                cursor.execute(sql)
+                # 提交到数据库执行
+                cursor.connection.commit()
+            except Exception as err:
+                print(err)
+                # 如果发生错误则回滚
+                db.rollback()
+            return {
+                "message": "",
+                "code": 0
+            }
     except Exception as err:
         print(err)
         return {
