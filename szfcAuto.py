@@ -29,7 +29,7 @@ def download(url, pngName):
     browser.find_element_by_id("save").click()
     time.sleep(60)
     # 点击 - 对比
-    browser.find_element_by_id("save").click()
+    browser.find_element_by_id("compare").click()
     time.sleep(60)
     # 通过执行脚本，设置滚动条到最大宽度及最大高度
     height = browser.execute_script(
