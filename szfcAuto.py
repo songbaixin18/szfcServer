@@ -1,3 +1,5 @@
+import os
+import stat
 import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -36,6 +38,7 @@ def download(url, pngName):
         "return document.documentElement.scrollHeight")
     browser.set_window_size(1920, height)
     # 保存的截图名字
+    os.chmod(pngName, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
     browser.save_screenshot(pngName)
     browser.quit()
 
