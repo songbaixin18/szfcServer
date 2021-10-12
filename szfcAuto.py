@@ -2,17 +2,20 @@ import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-chrome_options = Options()
-chrome_options.add_argument('--headless')
-chrome_options.add_argument('--disable-gpu')
+options = Options()
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
+options.add_argument('--headless')
+options.add_argument('--disable-gpu')
 
 path = r'C:/chromedriver'
+path = r'/usr/local/driver/chromedriver'
 
 
 def download(url, pngName):
     # 设置chrome驱动的路径及参数
     browser = webdriver.Chrome(
-        executable_path=path, chrome_options=chrome_options)
+        executable_path=path, options=options)
     # 获取网页内容
     browser.get(url)
     # 通过执行脚本，设置滚动条到最大宽度及最大高度
