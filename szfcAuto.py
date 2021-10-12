@@ -38,8 +38,8 @@ def download(url, pngName):
         "return document.documentElement.scrollHeight")
     browser.set_window_size(1920, height)
     # 保存的截图名字
-    os.chmod(pngName, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
     browser.save_screenshot(pngName)
+    os.chmod(pngName, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
     browser.quit()
 
 
