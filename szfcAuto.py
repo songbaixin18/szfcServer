@@ -40,6 +40,7 @@ def download(url, pngName):
     # 保存的截图名字
     browser.save_screenshot(pngName)
     os.chmod(pngName, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
+    browser.close()
     browser.quit()
 
 
