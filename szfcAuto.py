@@ -47,5 +47,5 @@ def download(url, pngName):
 if __name__ == '__main__':
     url = 'http://47.92.100.56:11580/'
     pngPath = '../data/'
-    pngName = pngPath + time.strftime("%Y-%m-%d", time.localtime()) + ".png"
+    pngName = pngPath + time.strftime("%-Y-%-m-%-d", time.localtime()) + ".png"
     download(url, pngName)
