@@ -26,7 +26,7 @@ def download(url, pngName):
     browser.set_window_size(1920, height)
     # 点击 - 查询
     browser.find_element_by_id("search").click()
-    time.sleep(180)
+    time.sleep(480)
     # 点击 - 存储
     browser.find_element_by_id("save").click()
     time.sleep(60)
