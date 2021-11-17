@@ -178,7 +178,7 @@ def searchFw(PBTAB_ID: Optional[str] = None, code: Optional[str] = None):
 def getLouData(code: Optional[str] = None, date: Optional[str] = None):
     try:
         with SSHTunnelForwarder(
-                ("47.92.100.56", 22),
+                ("39.98.124.42", 22),
                 ssh_username="root",
                 ssh_password="songbaixinA1",
                 remote_bind_address=('127.0.0.1', 3306)
@@ -219,7 +219,7 @@ def saveLouData(
         data: Optional[str] = Body("", embed=True)):
     try:
         with SSHTunnelForwarder(
-                ("47.92.100.56", 22),
+                ("39.98.124.42", 22),
                 ssh_username="root",
                 ssh_password="songbaixinA1",
                 remote_bind_address=('127.0.0.1', 3306)
